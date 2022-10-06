@@ -38,6 +38,8 @@ public class HPHandler : NetworkBehaviour
     // 플레이어가 총에 두번씩 맞는거 방지
     HitboxRoot _hitboxRoot;
     CharacterMovementHandler _characterMovementHandler;
+    NetworkInGameMessages _networkInGameMessages;
+    NetworkPlayer _networkPlayer;
 
     #endregion
 
@@ -45,6 +47,8 @@ public class HPHandler : NetworkBehaviour
     {
         _hitboxRoot = GetComponentInChildren<HitboxRoot>();
         _characterMovementHandler = GetComponent<CharacterMovementHandler>();
+        _networkInGameMessages = GetComponent<NetworkInGameMessages>();
+        _networkPlayer = GetComponent<NetworkPlayer>();
     }
 
     void Start()
@@ -143,7 +147,7 @@ public class HPHandler : NetworkBehaviour
     }
 
     // 오직 서버에 의해서만 실행됨
-    public void OnTakeDamage()
+    public void OnTakeDamage(string damageCauseByPlayerNickname)
     {
         // 살아있을때만 데미지 입음
         if (IsDead)
@@ -157,9 +161,12 @@ public class HPHandler : NetworkBehaviour
 
         if (HP <= 0)
         {
-            IsDead = true;
+            // damageCauseByPlayerNickname => 죽인사람 => 로컬 플레이어
+            // _networkPlayer.Nickname.ToString() => 죽은사람 => 리모트 플레이어 
+            _networkInGameMessages.SendInGameRPCMessage(damageCauseByPlayerNickname, $"killed {_networkPlayer.Nickname.ToString()}");
 
             StartCoroutine(ServerRevive());
+            IsDead = true;
         }
     }
 

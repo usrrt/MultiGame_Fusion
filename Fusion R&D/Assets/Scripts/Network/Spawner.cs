@@ -49,6 +49,10 @@ public class Spawner : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken)
     {
+        Debug.Log("Host Migration is working");
+
+
+
     }
 
     public void OnInput(NetworkRunner runner, NetworkInput input)

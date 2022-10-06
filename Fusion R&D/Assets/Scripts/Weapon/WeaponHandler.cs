@@ -23,12 +23,14 @@ public class WeaponHandler : NetworkBehaviour
     #region Other Components
 
     HPHandler _hPhandler;
+    NetworkPlayer _player;
 
     #endregion
 
     private void Awake()
     {
         _hPhandler = GetComponent<HPHandler>();
+        _player = GetComponent<NetworkPlayer>();
     }
 
     void Start()
@@ -68,7 +70,11 @@ public class WeaponHandler : NetworkBehaviour
 
         StartCoroutine(FireEffect());
 
-        Runner.LagCompensation.Raycast(AimPoint.position, aimForwardVec, 100f, Object.InputAuthority, out var hitInfo, CollisionLayers, HitOptions.IncludePhysX);
+        // 처음엔 HitOptions의 IncludePhysX를 썼으나 
+        // 호스트가아닌 다른 플레이어의 경우 뒤로가면서 총을쏘면 자신이 그 총에 맞는 경우가 생김
+        // 퓨전의 새로운 버전에선 이런 현상을 해결하기 위해 IgnoreInputAuthority라는 새로운 프로퍼티가 생김
+        // 맞는대상에서 자기자신을 제외할수있음
+        Runner.LagCompensation.Raycast(AimPoint.position, aimForwardVec, 100f, Object.InputAuthority, out var hitInfo, CollisionLayers, HitOptions.IgnoreInputAuthority);
 
         float hitDistance = 100f;
         bool isHitOtherPlayer = false;
@@ -84,7 +90,7 @@ public class WeaponHandler : NetworkBehaviour
 
             if (Object.HasStateAuthority)
             {
-                hitInfo.Hitbox.transform.root.GetComponent<HPHandler>().OnTakeDamage();
+                hitInfo.Hitbox.transform.root.GetComponent<HPHandler>().OnTakeDamage(_player.Nickname.ToString());
             }
 
             isHitOtherPlayer = true;

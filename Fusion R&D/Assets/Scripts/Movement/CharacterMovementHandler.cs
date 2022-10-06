@@ -19,13 +19,19 @@ public class CharacterMovementHandler : NetworkBehaviour
     // 재탄생 요청
     bool _isRespawnRequest = false;
 
+    #region Other Componenets
     NetworkCharacterControllerPrototypeCustom _networkCharacterControllerPrototypeCustom;
     HPHandler _hPHandler;
+    NetworkInGameMessages _inGameMessage;
+    NetworkPlayer _networkPlayer;
+    #endregion
+
 
     private void Awake()
     {
         _networkCharacterControllerPrototypeCustom = GetComponent<NetworkCharacterControllerPrototypeCustom>();
         _hPHandler = GetComponent<HPHandler>();
+        _inGameMessage = GetComponent<NetworkInGameMessages>();
     }
 
     void Start()
@@ -113,6 +119,9 @@ public class CharacterMovementHandler : NetworkBehaviour
             if (Object.HasStateAuthority)
             {
                 Debug.Log($"{gameObject.name}낭떠러지로 떨어지는중");
+
+                // 추락시 메시지
+                _inGameMessage.SendInGameRPCMessage(_networkPlayer.Nickname.ToString(), "fell off the world");
 
                 Respawn();
             }
