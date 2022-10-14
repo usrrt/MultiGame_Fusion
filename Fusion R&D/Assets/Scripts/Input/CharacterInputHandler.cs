@@ -68,6 +68,11 @@ public class CharacterInputHandler : MonoBehaviour
         // set view
         _localCameraHandler.SetViewInputVector(_viewInputVector);
 
+        //if (Input.GetKeyDown(KeyCode.Escape))
+        //{
+        //    Application.Quit();
+        //}
+
     }
 
     public NetworkInputData GetNetworkInput()

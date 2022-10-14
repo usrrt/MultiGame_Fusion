@@ -15,7 +15,7 @@ public class LocalCameraHandler : MonoBehaviour
 
     public Transform CameraAnchorPoint;
 
-    Camera _localCam;
+    public Camera LocalCam;
     NetworkCharacterControllerPrototypeCustom _characterController;
     // rotation
     float _cameraRotationX = 0;
@@ -26,17 +26,19 @@ public class LocalCameraHandler : MonoBehaviour
 
     private void Awake()
     {
-        _localCam = GetComponent<Camera>();
+        LocalCam = GetComponent<Camera>();
         _characterController = GetComponentInParent<NetworkCharacterControllerPrototypeCustom>();
     }
 
     void Start()
     {
-        // 로컬카메라 활성화되어있다면 카메라를 부모로부터 분리
-        if (_localCam.enabled)
-        {
-            _localCam.transform.parent = null;
-        }
+        //// 로컬카메라 활성화되어있다면 카메라를 부모로부터 분리
+        //if (_localCam.enabled)
+        //{
+        //    _localCam.transform.parent = null;
+        //}
+
+
     }
 
     private void LateUpdate()
@@ -46,13 +48,13 @@ public class LocalCameraHandler : MonoBehaviour
             return;
         }
 
-        if (!_localCam.enabled)
+        if (!LocalCam.enabled)
         {
             return;
         }
 
         // 카메라를 플레이어 위치로 이동
-        _localCam.transform.position = CameraAnchorPoint.position;
+        LocalCam.transform.position = CameraAnchorPoint.position;
 
         // rotation 계산
         _cameraRotationX += _viewInput.y * Time.deltaTime * _characterController.viewUpDownRotationSpeed;
@@ -61,7 +63,7 @@ public class LocalCameraHandler : MonoBehaviour
         _cameraRotationY += _viewInput.x * Time.deltaTime * _characterController.rotationSpeed;
 
         // rotaion 적용
-        _localCam.transform.rotation = Quaternion.Euler(_cameraRotationX, _cameraRotationY, 0f);
+        LocalCam.transform.rotation = Quaternion.Euler(_cameraRotationX, _cameraRotationY, 0f);
     }
 
     public void SetViewInputVector(Vector2 viewInput)

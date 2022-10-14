@@ -18,19 +18,34 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     public TextMeshProUGUI PlayerNicknameText;
     public Transform playerModel;
 
+
+
+    #region Networked
     [Networked(OnChanged = nameof(OnNicknameChanged))]
     public NetworkString<_16> Nickname { get; set; }
+
+    // 리모트 클라이언트 토큰 hash
+    [Networked]
+    public int Token { get; set; }
+    #endregion
+
+
 
     bool _isPublicJoinMessageSent = false;
 
     public LocalCameraHandler LocalCameraHandler;
     public GameObject LocalUI;
 
+
+
     #region Other Components
 
     NetworkInGameMessages _networkInGameMessages;
 
     #endregion
+
+
+
 
     private void Awake()
     {
@@ -53,8 +68,23 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             // 로컬플레이어 모델 레이어 세팅
             Utils.SetRenderLayerInChildren(playerModel, LayerMask.NameToLayer("LocalPlayerModel"));
 
-            // main카메라 필요없음
-            Camera.main.gameObject.SetActive(false);
+            // null이 아니라면 main카메라 필요없음
+            if (Camera.main != null)
+            {
+                Camera.main.gameObject.SetActive(false);
+            }
+
+            // 씬에서 1개의 오디오 리스너만 허용
+            AudioListener audioListener = GetComponentInChildren<AudioListener>(true);
+            audioListener.enabled = true;
+
+            // 로컬카메라 켜기
+            LocalCameraHandler.LocalCam.enabled = true;
+
+            // 부모로부터 로컬카메라 분리
+            LocalCameraHandler.transform.parent = null;
+
+            LocalUI.SetActive(true);
 
             RPC_SettingNickname(PlayerPrefs.GetString("PlayerNickname"));
 
@@ -63,9 +93,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         {
             Debug.Log("리모트 플레이어 생성");
 
-            // 로컬플레이어가 아닐시 카메라 disable
-            Camera localCamera = GetComponentInChildren<Camera>();
-            localCamera.enabled = false;
+            //// 로컬플레이어가 아닐시 카메라 disable
+            //Camera localCamera = GetComponentInChildren<Camera>();
+            //localCamera.enabled = false;
+            LocalCameraHandler.LocalCam.enabled = false;
 
             // 리모트플레이어의 채팅창이 나에게 보이지않도록 꺼버리기
             LocalUI.SetActive(false);
@@ -142,6 +173,15 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             _networkInGameMessages.SendInGameRPCMessage(nickname, "joined");
 
             _isPublicJoinMessageSent = true;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // 새로운 네트워크 플레이어가 생성될때 같이 생기는 카메라를 삭제함
+        if (LocalCameraHandler != null)
+        {
+            Destroy(LocalCameraHandler.gameObject);
         }
     }
 }

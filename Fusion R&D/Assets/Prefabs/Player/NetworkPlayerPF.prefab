@@ -578,6 +578,7 @@ MonoBehaviour:
     _length: 0
     _data:
       Data: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  _Token: 0
   LocalCameraHandler: {fileID: 2406093124320258174}
   LocalUI: {fileID: 8617397499908545471}
 --- !u!114 &5078568231488838421
@@ -595,7 +596,7 @@ MonoBehaviour:
   ObjectInterest: 1
   DefaultInterestGroups: []
   DestroyWhenStateAuthorityLeaves: 0
-  AllowStateAuthorityOverride: 0
+  AllowStateAuthorityOverride: 1
   AoiPositionSource: {fileID: 0}
   Flags: 2305
   NetworkGuid:
